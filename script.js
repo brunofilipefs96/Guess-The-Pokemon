@@ -8,12 +8,11 @@ const scoreElement = document.getElementById('score-value');
 
 window.checkGuess = function() {
     if (!currentPokemonData) {
-        console.error('Nenhum dado de Pokémon disponível.');
+        console.error('No current Pokémon data.');
         return;
     }
 
     const pokemonName = currentPokemonData.name.toLowerCase();
-    console.log('Nome correto do Pokémon:', pokemonName);
 
     const formattedPokemonName = pokemonName.replace(/-.*/, '');
 
@@ -23,7 +22,6 @@ window.checkGuess = function() {
         guess += selectBox.value;
     });
     guess = guess.toLowerCase();
-    console.log('Palpite do usuário:', guess);
 
     if (guess === formattedPokemonName) {
         guessedPokemonList.push(pokemonName);
