@@ -2,32 +2,32 @@ import { getRandomPokemon, getTotalPokemonCount } from './api.js';
 
 let currentPokemonData = null;
 let guessedPokemonList = [];
-let lives = 3;
-let score = 0;
-const scoreElement = document.getElementById('score-value');
-let selectedRegion = 'kanto'; // Variável para armazenar a região selecionada
+let scores = [0, 0, 0]; // Array para armazenar os scores de cada região
+let totalPokemonCounts = {}; // Objeto para armazenar o total de Pokémon de cada região
+const progressBarText = document.getElementById('progress-text');
+let selectedRegion = 'kanto'; // Definir selectedRegion como uma variável global
+
+const regionIndexMap = {
+    'kanto': 0,
+    'johto': 1,
+    'hoenn': 2
+};
 
 // Função para buscar um novo Pokémon da região selecionada
-function generateNewPokemon() {
-    getRandomPokemon(selectedRegion)
-        .then(data => {
-            // Atualize o Pokémon atual com os dados do novo Pokémon buscado
-            currentPokemonData = data;
-            // Atualize a exibição do Pokémon
-            updatePokemonDisplay();
-        })
-        .catch(error => {
-            console.error('Error fetching Pokémon data:', error);
-        });
-}
-
-// Função para buscar o número total de Pokémon disponíveis na região selecionada
-async function updateTotalPokemonCount() {
+async function generateNewPokemon() {
     try {
-        const totalPokemonCount = await getTotalPokemonCount(selectedRegion);
-        localStorage.setItem('totalPokemonCount', totalPokemonCount);
+        // Obter o total de Pokémon na região selecionada
+        totalPokemonCounts[selectedRegion] = await getTotalPokemonCount(selectedRegion);
+        // Atualizar o texto na barra de progresso
+        progressBarText.textContent = `${scores[regionIndexMap[selectedRegion]]}/${totalPokemonCounts[selectedRegion]}`;
+
+        const data = await getRandomPokemon(selectedRegion);
+        // Atualize o Pokémon atual com os dados do novo Pokémon buscado
+        currentPokemonData = data;
+        // Atualize a exibição do Pokémon
+        updatePokemonDisplay();
     } catch (error) {
-        console.error('Error fetching total Pokémon count:', error);
+        console.error('Error fetching Pokémon data:', error);
     }
 }
 
@@ -50,8 +50,6 @@ function handleRegionClick(region) {
 
     // Busque um novo Pokémon da região selecionada
     generateNewPokemon();
-    // Atualize o número total de Pokémon disponíveis na região selecionada
-    updateTotalPokemonCount();
 }
 
 // Adicione um evento de clique a cada link de região
@@ -68,6 +66,7 @@ document.querySelectorAll('.region-link').forEach(link => {
 const defaultRegionLink = document.querySelector('.region-link');
 defaultRegionLink.classList.add('selected'); // Adicionar classe ao primeiro link por omissão
 
+// Função para verificar o palpite do usuário
 window.checkGuess = function() {
     if (!currentPokemonData) {
         console.error('No current Pokémon data.');
@@ -75,7 +74,6 @@ window.checkGuess = function() {
     }
 
     const pokemonName = currentPokemonData.name.toLowerCase();
-
     const formattedPokemonName = pokemonName.replace(/-.*/, '');
 
     const selectBoxes = document.querySelectorAll('.letter-select');
@@ -87,34 +85,24 @@ window.checkGuess = function() {
 
     if (guess === formattedPokemonName) {
         guessedPokemonList.push(pokemonName);
-        score++;
-        scoreElement.textContent = score;
-        updateLivesDisplay();
+        scores[regionIndexMap[selectedRegion]]++;
 
-        if (score === 151) {
-            displayModal('Congratulations!', 'You found all 151 Pokémon!');
+        const totalPokemonCount = totalPokemonCounts[selectedRegion]; // Obter o total de Pokémon da região atual
+        if (scores[regionIndexMap[selectedRegion]] === totalPokemonCount) {
+            displayModal('Congratulations!', 'You found all the Pokémon in this region!');
             const checkButton = document.getElementById('check-button');
             if (checkButton) {
                 checkButton.textContent = 'Try Again';
                 checkButton.setAttribute('onclick', 'restartGame()');
             }
         } else {
-            displayModal('Congratulations!', 'You guessed the Pokémon correctly!');
             generateNewPokemon();
         }
+
+        // Atualiza a barra de progresso
+        updateScoreProgressBar();
     } else {
-        lives--;
-        updateLivesDisplay();
-        if (lives < 1) {
-            displayModal('Game over!', 'You have run out of lives.');
-            const checkButton = document.getElementById('check-button');
-            if (checkButton) {
-                checkButton.textContent = 'Try Again';
-                checkButton.setAttribute('onclick', 'restartGame()');
-            }
-        } else {
-            displayModal('Wrong guess', `Sorry, wrong guess. You have ${lives} lives remaining. Try again!`);
-        }
+        displayModal('Wrong guess', `Sorry, wrong guess. Keep trying!`);
     }
 }
 
@@ -173,34 +161,25 @@ function updatePokemonDisplay() {
     }
 }
 
-// Update the lives display
-function updateLivesDisplay() {
-    const livesElement = document.getElementById('lives');
-    if (livesElement) {
-        livesElement.textContent = `Lives: ${lives}`;
-    } else {
-        console.error('Element with ID "lives" not found.');
-    }
-}
+function updateScoreProgressBar() {
+    const progressBar = document.getElementById('progress-bar-inner');
+    const progressText = document.getElementById('progress-text');
 
-// Restart the game
-window.restartGame = function() {
-    guessedPokemonList = [];
-    lives = 3;
-    score = 0;
-    scoreElement.textContent = score;
-    updateLivesDisplay();
-    const checkButton = document.getElementById('check-button');
-    if (checkButton) {
-        checkButton.textContent = 'Guess';
-        checkButton.setAttribute('onclick', 'checkGuess()');
+    if (!progressBar || !progressText) {
+        console.error('Progress bar or progress text element not found.');
+        return;
     }
-    generateNewPokemon();
+
+    const totalPokemonCount = totalPokemonCounts[selectedRegion]; // Obter o total de Pokémon da região atual
+    const progress = scores[regionIndexMap[selectedRegion]] / totalPokemonCount; // Calcular o progresso com base no score atual e no total de Pokémon
+
+    progressBar.style.width = `${progress * 100}%`;
+    progressText.textContent = `${scores[regionIndexMap[selectedRegion]]}/${totalPokemonCount}`;
 }
 
 // Initialize the Pokédex
 document.addEventListener('DOMContentLoaded', () => {
-    updateLivesDisplay();
+    updateScoreProgressBar(); // Atualiza a barra de progresso e o texto ao carregar a página
     generateNewPokemon();
     const closeButton = document.getElementById('modal-close-button');
     if (closeButton) {

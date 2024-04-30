@@ -27,4 +27,25 @@ body {
     text-shadow: 20px 20px 20px black;
 }
 
+#progress-bar {
+    position: relative;
+    width: 100%;
+    height: 25px;
+    background-color: #9bbbf3;
+    border-radius: 9999px;
+    margin-bottom: 4px;
+    overflow: hidden;
+}
+
+#progress-bar-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #0080ff;
+    border-radius: 9999px;
+    transition: width 0.3s ease;
+}
+
+
 

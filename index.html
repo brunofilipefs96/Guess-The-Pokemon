@@ -51,14 +51,16 @@
         <div id="pokemon-image"></div>
     </div>
     <div id="letter-box" class="flex justify-center mb-8"></div>
-    <div id="score" class="score">Score: <span id="score-value">0</span></div>
-    <div id="lives" class="text-center font-bold text-lg mb-8">Lives: 3</div>
-    <button id="check-button" onclick="checkGuess()" class="block mx-auto bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-lg">Guess</button>
+    <div id="progress-bar" class="bg-blue-500 h-6 rounded-full mb-4 relative">
+        <div id="progress-bar-inner" class="bg-green-500 h-full rounded-full"></div>
+        <div id="progress-text" class="absolute inset-0 flex items-center justify-center text-white font-semibold"></div>
+    </div>
+    <p class="text-gray-500 italic text-center mt-2">Refresh the page to restart the game.</p>
+    <button id="check-button" onclick="checkGuess()" class="block mt-10 mx-auto bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-lg">Guess</button>
 </div>
 <footer class="fixed inset-x-0 bottom-0 w-full bg-gray-900 text-white text-center py-4">Developed by Bruno Silva</footer>
 <script src="script.js" type="module"></script>
 <script>
-    // Seleciona a primeira região por omissão
     const defaultRegionLink = document.querySelector('.region-link');
     defaultRegionLink.classList.add('border-b-2', 'border-green-400');
 </script>
