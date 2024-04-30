@@ -2,7 +2,7 @@ import { getRandomPokemon, getTotalPokemonCount } from './api.js';
 
 let currentPokemonData = null;
 let guessedPokemonList = [];
-let scores = [0, 0, 0]; 
+let scores = [0, 0, 0];
 let totalPokemonCounts = {};
 const progressBarText = document.getElementById('progress-text');
 let selectedRegion = 'kanto';
