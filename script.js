@@ -2,10 +2,10 @@ import { getRandomPokemon, getTotalPokemonCount } from './api.js';
 
 let currentPokemonData = null;
 let guessedPokemonList = [];
-let scores = [0, 0, 0]; // Array para armazenar os scores de cada região
-let totalPokemonCounts = {}; // Objeto para armazenar o total de Pokémon de cada região
+let scores = [0, 0, 0]; 
+let totalPokemonCounts = {};
 const progressBarText = document.getElementById('progress-text');
-let selectedRegion = 'kanto'; // Definir selectedRegion como uma variável global
+let selectedRegion = 'kanto';
 
 const regionIndexMap = {
     'kanto': 0,
@@ -13,18 +13,13 @@ const regionIndexMap = {
     'hoenn': 2
 };
 
-// Função para buscar um novo Pokémon da região selecionada
 async function generateNewPokemon() {
     try {
-        // Obter o total de Pokémon na região selecionada
         totalPokemonCounts[selectedRegion] = await getTotalPokemonCount(selectedRegion);
-        // Atualizar o texto na barra de progresso
         progressBarText.textContent = `${scores[regionIndexMap[selectedRegion]]}/${totalPokemonCounts[selectedRegion]}`;
 
         const data = await getRandomPokemon(selectedRegion);
-        // Atualize o Pokémon atual com os dados do novo Pokémon buscado
         currentPokemonData = data;
-        // Atualize a exibição do Pokémon
         updatePokemonDisplay();
     } catch (error) {
         console.error('Error fetching Pokémon data:', error);
@@ -32,41 +27,31 @@ async function generateNewPokemon() {
 }
 
 function handleRegionClick(region) {
-    // Verificar se a região clicada é diferente da região atualmente selecionada
     if (region === selectedRegion) {
-        return; // Se forem iguais, sair da função sem fazer mais nada
+        return;
     }
 
-    // Remover a classe que destaca o link selecionado de todos os links de região
     document.querySelectorAll('.region-link').forEach(link => {
         link.classList.remove('border-b-2', 'border-green-400');
     });
 
-    // Adicionar a classe que destaca o link selecionado ao link recém-clicado
     this.classList.add('border-b-2', 'border-green-400');
 
-    // Atualize a região selecionada
     selectedRegion = region;
 
-    // Busque um novo Pokémon da região selecionada
     generateNewPokemon();
 }
 
-// Adicione um evento de clique a cada link de região
 document.querySelectorAll('.region-link').forEach(link => {
     link.addEventListener('click', () => {
-        // Obtenha a região associada ao link clicado
         const region = link.dataset.region;
-        // Manipule o clique na região
-        handleRegionClick.call(link, region); // Passar o link atual como contexto para a função
+        handleRegionClick.call(link, region);
     });
 });
 
-// Seleciona a primeira região por omissão
 const defaultRegionLink = document.querySelector('.region-link');
-defaultRegionLink.classList.add('selected'); // Adicionar classe ao primeiro link por omissão
+defaultRegionLink.classList.add('selected');
 
-// Função para verificar o palpite do usuário
 window.checkGuess = function() {
     if (!currentPokemonData) {
         console.error('No current Pokémon data.');
@@ -87,7 +72,7 @@ window.checkGuess = function() {
         guessedPokemonList.push(pokemonName);
         scores[regionIndexMap[selectedRegion]]++;
 
-        const totalPokemonCount = totalPokemonCounts[selectedRegion]; // Obter o total de Pokémon da região atual
+        const totalPokemonCount = totalPokemonCounts[selectedRegion];
         if (scores[regionIndexMap[selectedRegion]] === totalPokemonCount) {
             displayModal('Congratulations!', 'You found all the Pokémon in this region!');
             const checkButton = document.getElementById('check-button');
@@ -170,8 +155,8 @@ function updateScoreProgressBar() {
         return;
     }
 
-    const totalPokemonCount = totalPokemonCounts[selectedRegion]; // Obter o total de Pokémon da região atual
-    const progress = scores[regionIndexMap[selectedRegion]] / totalPokemonCount; // Calcular o progresso com base no score atual e no total de Pokémon
+    const totalPokemonCount = totalPokemonCounts[selectedRegion];
+    const progress = scores[regionIndexMap[selectedRegion]] / totalPokemonCount;
 
     progressBar.style.width = `${progress * 100}%`;
     progressText.textContent = `${scores[regionIndexMap[selectedRegion]]}/${totalPokemonCount}`;
@@ -179,7 +164,7 @@ function updateScoreProgressBar() {
 
 // Initialize the Pokédex
 document.addEventListener('DOMContentLoaded', () => {
-    updateScoreProgressBar(); // Atualiza a barra de progresso e o texto ao carregar a página
+    updateScoreProgressBar();
     generateNewPokemon();
     const closeButton = document.getElementById('modal-close-button');
     if (closeButton) {
