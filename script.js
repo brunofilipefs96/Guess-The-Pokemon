@@ -1,10 +1,72 @@
-import { getRandomPokemon } from './api.js';
+import { getRandomPokemon, getTotalPokemonCount } from './api.js';
 
 let currentPokemonData = null;
 let guessedPokemonList = [];
 let lives = 3;
 let score = 0;
 const scoreElement = document.getElementById('score-value');
+let selectedRegion = 'kanto'; // Variável para armazenar a região selecionada
+
+// Função para buscar um novo Pokémon da região selecionada
+function generateNewPokemon() {
+    getRandomPokemon(selectedRegion)
+        .then(data => {
+            // Atualize o Pokémon atual com os dados do novo Pokémon buscado
+            currentPokemonData = data;
+            // Atualize a exibição do Pokémon
+            updatePokemonDisplay();
+        })
+        .catch(error => {
+            console.error('Error fetching Pokémon data:', error);
+        });
+}
+
+// Função para buscar o número total de Pokémon disponíveis na região selecionada
+async function updateTotalPokemonCount() {
+    try {
+        const totalPokemonCount = await getTotalPokemonCount(selectedRegion);
+        localStorage.setItem('totalPokemonCount', totalPokemonCount);
+    } catch (error) {
+        console.error('Error fetching total Pokémon count:', error);
+    }
+}
+
+function handleRegionClick(region) {
+    // Verificar se a região clicada é diferente da região atualmente selecionada
+    if (region === selectedRegion) {
+        return; // Se forem iguais, sair da função sem fazer mais nada
+    }
+
+    // Remover a classe que destaca o link selecionado de todos os links de região
+    document.querySelectorAll('.region-link').forEach(link => {
+        link.classList.remove('border-b-2', 'border-green-400');
+    });
+
+    // Adicionar a classe que destaca o link selecionado ao link recém-clicado
+    this.classList.add('border-b-2', 'border-green-400');
+
+    // Atualize a região selecionada
+    selectedRegion = region;
+
+    // Busque um novo Pokémon da região selecionada
+    generateNewPokemon();
+    // Atualize o número total de Pokémon disponíveis na região selecionada
+    updateTotalPokemonCount();
+}
+
+// Adicione um evento de clique a cada link de região
+document.querySelectorAll('.region-link').forEach(link => {
+    link.addEventListener('click', () => {
+        // Obtenha a região associada ao link clicado
+        const region = link.dataset.region;
+        // Manipule o clique na região
+        handleRegionClick.call(link, region); // Passar o link atual como contexto para a função
+    });
+});
+
+// Seleciona a primeira região por omissão
+const defaultRegionLink = document.querySelector('.region-link');
+defaultRegionLink.classList.add('selected'); // Adicionar classe ao primeiro link por omissão
 
 window.checkGuess = function() {
     if (!currentPokemonData) {
@@ -74,21 +136,6 @@ function closeModal() {
     if (modalContainer) {
         modalContainer.classList.add('hidden');
     }
-}
-
-// Generate a new Pokémon
-function generateNewPokemon() {
-    getRandomPokemon().then(data => {
-        const newPokemonName = data.name;
-        if (guessedPokemonList.includes(newPokemonName)) {
-            generateNewPokemon();
-        } else {
-            currentPokemonData = data;
-            updatePokemonDisplay();
-        }
-    }).catch(error => {
-        console.error('Error fetching Pokémon data:', error);
-    });
 }
 
 // Update the Pokémon display
