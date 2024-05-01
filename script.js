@@ -49,8 +49,13 @@ document.querySelectorAll('.region-link').forEach(link => {
     });
 });
 
-const defaultRegionLink = document.querySelector('.region-link');
-defaultRegionLink.classList.add('selected');
+// Adicionando funcionalidade ao ícone de menu toggle
+const menuToggle = document.getElementById('menu-toggle');
+const navbarLinks = document.getElementById('navbar-links');
+
+menuToggle.addEventListener('click', () => {
+    navbarLinks.classList.toggle('hidden');
+});
 
 window.checkGuess = function() {
     if (!currentPokemonData) {
@@ -84,7 +89,6 @@ window.checkGuess = function() {
             generateNewPokemon();
         }
 
-        // Atualiza a barra de progresso
         updateScoreProgressBar();
     } else {
         displayModal('Wrong guess', `Sorry, wrong guess. Keep trying!`);
@@ -103,7 +107,6 @@ function displayModal(title, message) {
     }
 }
 
-// Função para fechar o modal
 function closeModal() {
     const modalContainer = document.getElementById('modal-container');
     if (modalContainer) {
@@ -111,7 +114,6 @@ function closeModal() {
     }
 }
 
-// Update the Pokémon display
 function updatePokemonDisplay() {
     const pokemonImageElement = document.getElementById('pokemon-image');
     const letterBoxElement = document.getElementById('letter-box');
@@ -127,12 +129,10 @@ function updatePokemonDisplay() {
     const pokemonName = currentPokemonData.name;
     const pokemonImageUrl = currentPokemonData.sprites.front_default;
 
-    // Display Pokémon image
     const imageElement = document.createElement('img');
     imageElement.src = pokemonImageUrl;
     pokemonImageElement.appendChild(imageElement);
 
-    // Create letter select boxes for guessing
     for (let i = 0; i < pokemonName.length; i++) {
         const selectBox = document.createElement('select');
         selectBox.classList.add('letter-select');
@@ -162,10 +162,13 @@ function updateScoreProgressBar() {
     progressText.textContent = `${scores[regionIndexMap[selectedRegion]]}/${totalPokemonCount}`;
 }
 
-// Initialize the Pokédex
 document.addEventListener('DOMContentLoaded', () => {
     updateScoreProgressBar();
     generateNewPokemon();
+    const defaultRegionLink = document.querySelector('.region-link[data-region="kanto"]');
+    if (defaultRegionLink) {
+        defaultRegionLink.classList.add('border-b-2', 'border-green-400');
+    }
     const closeButton = document.getElementById('modal-close-button');
     if (closeButton) {
         closeButton.addEventListener('click', closeModal);
